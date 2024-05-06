@@ -75,7 +75,7 @@ where
             }
         }
 
-        write!(f, "\n")?;
+        writeln!(f)?;
 
         // let mut current = self.tail.clone();
         // while let Some(node) = current {
