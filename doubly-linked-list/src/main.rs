@@ -1,4 +1,5 @@
-use std::{cell::RefCell, fmt, rc::Rc};
+use std::cell::RefCell;
+use std::{fmt, rc::Rc};
 
 #[derive(Clone)]
 struct Node<T: Clone> {
@@ -57,6 +58,19 @@ impl<T: Clone> DoublyLinkedList<T> {
             self.head = Some(node);
         }
     }
+
+    fn pop_front(&mut self) -> Option<Node<T>> {
+        match self.head.clone() {
+            Some(head) => {
+                let head_data = head.borrow().clone();
+                self.head.clone_from(&head.borrow().next.clone());
+                head.borrow_mut().prev = None;
+
+                Some(head_data)
+            }
+            None => None,
+        }
+    }
 }
 
 impl<T: Clone> fmt::Display for DoublyLinkedList<T>
@@ -65,11 +79,11 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut current = self.head.clone();
-        while let Some(node) = current {
+        while let Some(node) = current.clone() {
             let n = node.borrow();
             write!(f, " data: {}", n.data)?;
             write!(f, " @{:p} ", &n.data)?;
-            current = n.next.clone();
+            current.clone_from(&n.next);
             if current.is_some() {
                 write!(f, "<--->")?;
             }
@@ -98,11 +112,19 @@ fn main() {
     list.push_back(1);
     list.push_back(2);
     list.push_back(3);
-
     println!("{}", list); // 1<--->2<--->3
 
     list.push_front(4);
     list.push_front(5);
-
     println!("{}", list); // 5<--->4<--->1<--->2<--->3
+
+    match list.pop_front() {
+        Some(n) => {
+            println!(" data: {}", n.data);
+        }
+        None => {
+            println!(" None");
+        }
+    }
+    println!("{}", list); // 4<--->1<--->2<--->3
 }
