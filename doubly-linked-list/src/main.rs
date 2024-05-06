@@ -31,9 +31,9 @@ impl<T: Clone> DoublyLinkedList<T> {
             self.head = Some(node.clone());
             self.tail = Some(node);
         } else {
-            node.as_ref().borrow_mut().prev.clone_from(&self.tail);
+            node.borrow_mut().prev.clone_from(&self.tail);
             if let Some(ref mut tail) = self.tail {
-                tail.as_ref().borrow_mut().next = Some(node.clone());
+                tail.borrow_mut().next = Some(node.clone());
             }
             self.tail = Some(node);
         }
@@ -46,15 +46,29 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut current = self.head.clone();
-        while let Some(ref node) = current {
-            let n = node.as_ref().borrow().clone();
+        while let Some(node) = current {
+            let n = node.borrow();
             write!(f, " data: {}", n.data)?;
-            write!(f, " @{:p} ", &n)?;
-            current = n.next;
+            write!(f, " @{:p} ", &n.data)?;
+            current = n.next.clone();
             if current.is_some() {
                 write!(f, "<--->")?;
             }
         }
+
+        write!(f, "\n")?;
+
+        let mut current = self.tail.clone();
+        while let Some(node) = current {
+            let n = node.borrow();
+            write!(f, " data: {}", n.data)?;
+            write!(f, " @{:p} ", &n.data)?;
+            current = n.prev.clone();
+            if current.is_some() {
+                write!(f, "<--->")?;
+            }
+        }
+
         Ok(())
     }
 }
