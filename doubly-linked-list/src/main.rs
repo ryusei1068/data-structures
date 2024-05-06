@@ -38,6 +38,25 @@ impl<T: Clone> DoublyLinkedList<T> {
             self.tail = Some(node);
         }
     }
+
+    fn push_front(&mut self, data: T) {
+        let node = Rc::new(RefCell::new(Node {
+            data,
+            next: None,
+            prev: None,
+        }));
+
+        if self.head.is_none() {
+            self.head = Some(node.clone());
+            self.tail = Some(node);
+        } else {
+            node.borrow_mut().next.clone_from(&self.head);
+            if let Some(ref mut head) = self.head {
+                head.borrow_mut().prev = Some(node.clone());
+            }
+            self.head = Some(node);
+        }
+    }
 }
 
 impl<T: Clone> fmt::Display for DoublyLinkedList<T>
@@ -58,16 +77,16 @@ where
 
         write!(f, "\n")?;
 
-        let mut current = self.tail.clone();
-        while let Some(node) = current {
-            let n = node.borrow();
-            write!(f, " data: {}", n.data)?;
-            write!(f, " @{:p} ", &n.data)?;
-            current = n.prev.clone();
-            if current.is_some() {
-                write!(f, "<--->")?;
-            }
-        }
+        // let mut current = self.tail.clone();
+        // while let Some(node) = current {
+        //     let n = node.borrow();
+        //     write!(f, " data: {}", n.data)?;
+        //     write!(f, " @{:p} ", &n.data)?;
+        //     current = n.prev.clone();
+        //     if current.is_some() {
+        //         write!(f, "<--->")?;
+        //     }
+        // }
 
         Ok(())
     }
@@ -81,4 +100,9 @@ fn main() {
     list.push_back(3);
 
     println!("{}", list); // 1<--->2<--->3
+
+    list.push_front(4);
+    list.push_front(5);
+
+    println!("{}", list); // 5<--->4<--->1<--->2<--->3
 }
