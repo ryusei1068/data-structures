@@ -63,10 +63,27 @@ impl<T: Clone> DoublyLinkedList<T> {
         match self.head.clone() {
             Some(head) => {
                 let head_data = head.borrow().clone();
-                self.head.clone_from(&head.borrow().next.clone());
-                head.borrow_mut().prev = None;
+                if let Some(next) = head.borrow().next.clone() {
+                    next.borrow_mut().prev = None;
+                    self.head.clone_from(&head.borrow().next.clone());
+                }
 
                 Some(head_data)
+            }
+            None => None,
+        }
+    }
+
+    fn pop_back(&mut self) -> Option<Node<T>> {
+        match self.tail.clone() {
+            Some(tail) => {
+                let tail_data = tail.borrow().clone();
+                if let Some(prev) = tail.borrow().prev.clone() {
+                    prev.borrow_mut().next = None;
+                    self.tail.clone_from(&tail.borrow().prev.clone());
+                }
+
+                Some(tail_data)
             }
             None => None,
         }
@@ -79,11 +96,11 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut current = self.head.clone();
-        while let Some(node) = current.clone() {
+        while let Some(node) = current {
             let n = node.borrow();
             write!(f, " data: {}", n.data)?;
             write!(f, " @{:p} ", &n.data)?;
-            current.clone_from(&n.next);
+            current = n.next.clone();
             if current.is_some() {
                 write!(f, "<--->")?;
             }
@@ -91,16 +108,16 @@ where
 
         writeln!(f)?;
 
-        // let mut current = self.tail.clone();
-        // while let Some(node) = current {
-        //     let n = node.borrow();
-        //     write!(f, " data: {}", n.data)?;
-        //     write!(f, " @{:p} ", &n.data)?;
-        //     current = n.prev.clone();
-        //     if current.is_some() {
-        //         write!(f, "<--->")?;
-        //     }
-        // }
+        let mut current = self.tail.clone();
+        while let Some(node) = current {
+            let n = node.borrow();
+            write!(f, " data: {}", n.data)?;
+            write!(f, " @{:p} ", &n.data)?;
+            current = n.prev.clone();
+            if current.is_some() {
+                write!(f, "<--->")?;
+            }
+        }
 
         Ok(())
     }
@@ -112,11 +129,11 @@ fn main() {
     list.push_back(1);
     list.push_back(2);
     list.push_back(3);
-    println!("{}", list); // 1<--->2<--->3
+    println!("{}\n", list); // 1<--->2<--->3
 
     list.push_front(4);
     list.push_front(5);
-    println!("{}", list); // 5<--->4<--->1<--->2<--->3
+    println!("{}\n", list); // 5<--->4<--->1<--->2<--->3
 
     match list.pop_front() {
         Some(n) => {
@@ -126,5 +143,15 @@ fn main() {
             println!(" None");
         }
     }
-    println!("{}", list); // 4<--->1<--->2<--->3
+    println!("{}\n", list); // 4<--->1<--->2<--->3
+
+    match list.pop_back() {
+        Some(n) => {
+            println!(" data: {}", n.data);
+        }
+        None => {
+            println!(" None");
+        }
+    }
+    println!("{}", list); // 4<--->1<--->2
 }
