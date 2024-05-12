@@ -94,7 +94,7 @@ where
         match *self {
             BinaryTree::NonEmpty(ref node) => {
                 node.left.fmt(f)?;
-                write!(f, "{} -> ", node.element)?;
+                write!(f, "{} @{:p}-> ", node.element, &node.element)?;
                 node.right.fmt(f)?;
             }
             BinaryTree::Empty => {}
