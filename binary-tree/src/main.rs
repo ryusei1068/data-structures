@@ -52,6 +52,10 @@ impl<T: Ord + Copy> BinarySearchTree<T> {
     fn insert(&mut self, value: T) {
         self.root.add(value);
     }
+
+    fn search(&self, key: T) -> Option<&TreeNode<T>> {
+        self.root.search(key)
+    }
 }
 
 impl<T: Ord + Copy> BinaryTree<T> {
@@ -71,6 +75,19 @@ impl<T: Ord + Copy> BinaryTree<T> {
                     node.right.add(value)
                 }
             }
+        }
+    }
+
+    fn search(&self, value: T) -> Option<&TreeNode<T>> {
+        use std::cmp::Ordering;
+
+        match *self {
+            BinaryTree::NonEmpty(ref node) => match node.element.cmp(&value) {
+                Ordering::Greater => node.left.search(value),
+                Ordering::Less => node.right.search(value),
+                Ordering::Equal => Some(node),
+            },
+            BinaryTree::Empty => None,
         }
     }
 }
@@ -107,6 +124,10 @@ fn main() {
     let arr = vec![10, 1, 5, 8, 9, 6];
     let mut bst = BinarySearchTree::new(arr);
     println!("{}", bst);
+
+    if let Some(node) = bst.search(8) {
+        println!("\nbinary search: {}\n", node.element);
+    }
 
     bst.insert(0);
     bst.insert(4);
