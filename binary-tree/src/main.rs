@@ -107,21 +107,54 @@ where
     T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // inorder
-        match *self {
-            BinaryTree::NonEmpty(ref node) => {
-                node.left.fmt(f)?;
-                write!(f, "{} @{:p}-> ", node.element, &node.element)?;
-                node.right.fmt(f)?;
+        use std::collections::VecDeque;
+
+        let mut queue = VecDeque::new();
+        queue.push_back(self);
+
+        while let Some(cur_node) = queue.pop_front() {
+            match *cur_node {
+                BinaryTree::NonEmpty(ref cur_node) => {
+                    write!(f, " {} @{:p} ", cur_node.element, &cur_node.element)?;
+                    match cur_node.left {
+                        BinaryTree::NonEmpty(_) => {
+                            queue.push_back(&cur_node.left);
+                        }
+                        BinaryTree::Empty => {}
+                    }
+                    match cur_node.right {
+                        BinaryTree::NonEmpty(_) => {
+                            queue.push_back(&cur_node.right);
+                        }
+                        BinaryTree::Empty => {}
+                    }
+                }
+                BinaryTree::Empty => {}
             }
-            BinaryTree::Empty => {}
         }
+
+        // inorder
+        // match *self {
+        //     BinaryTree::NonEmpty(ref node) => {
+        //         node.left.fmt(f)?;
+        //         write!(f, "{} @{:p}-> ", node.element, &node.element)?;
+        //         node.right.fmt(f)?;
+        //     }
+        //     BinaryTree::Empty => {}
+        // }
         Ok(())
     }
 }
 
 fn main() {
-    let arr = vec![10, 1, 5, 8, 9, 6];
+    //                 5
+    //              ↙︎     ↘︎
+    //            2          8
+    //          ↙︎  ↘︎      ↙︎    ↘︎
+    //         1   3     6      9
+    //              ↘︎     ↘︎       ↘︎ 
+    //              4     7       10
+    let arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     let mut bst = BinarySearchTree::new(arr);
     println!("{}", bst);
 
@@ -130,7 +163,7 @@ fn main() {
     }
 
     bst.insert(0);
-    bst.insert(4);
+    bst.insert(11);
 
     println!("{}", bst);
 }
