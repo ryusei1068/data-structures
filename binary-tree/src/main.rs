@@ -13,16 +13,13 @@ struct BinarySearchTree<T> {
 }
 
 impl<T: Copy + Ord> BinarySearchTree<T> {
-    fn new(mut arr: Vec<T>) -> Self {
-        arr.sort();
-        BinarySearchTree {
-            root: Self::sorted_bst(&arr, 0, arr.len() - 1),
-        }
+    fn new() -> Self {
+        BinarySearchTree { root: None }
     }
 
-    fn sorted_bst(arr: &Vec<T>, start: usize, end: usize) -> Option<Rc<RefCell<TreeNode<T>>>> {
+    fn bst(&mut self, arr: &Vec<T>, start: usize, end: usize) -> Option<Rc<RefCell<TreeNode<T>>>> {
         if start == end {
-            return Some(Rc::new(RefCell::new(TreeNode {
+            self.root = Some(Rc::new(RefCell::new(TreeNode {
                 element: arr[start],
                 left: None,
                 right: None,
@@ -32,18 +29,20 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
         let mid = (start + end) / 2;
         let mut left = None;
         if start < mid {
-            left = Self::sorted_bst(arr, start, mid - 1);
+            left = self.bst(arr, start, mid - 1);
         }
         let mut right = None;
         if end > mid {
-            right = Self::sorted_bst(arr, mid + 1, end);
+            right = self.bst(arr, mid + 1, end);
         }
 
-        Some(Rc::new(RefCell::new(TreeNode {
+        self.root = Some(Rc::new(RefCell::new(TreeNode {
             element: arr[mid],
             left,
             right,
-        })))
+        })));
+
+        self.root.clone()
     }
 
     fn insert(&mut self, value: T) {
@@ -96,6 +95,28 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
         }
         None
     }
+
+    fn minimum_node_recursion(&self) -> Option<Rc<RefCell<TreeNode<T>>>> {
+        if let Some(ref root) = self.root {
+            root.borrow().minimum_node()
+        } else {
+            None
+        }
+    }
+}
+
+impl<T> TreeNode<T> {
+    fn minimum_node(&self) -> Option<Rc<RefCell<TreeNode<T>>>> {
+        if let Some(ref left) = self.left {
+            if let Some(ref child_left) = left.borrow().left {
+                child_left.borrow().minimum_node()
+            } else {
+                Some(left.clone())
+            }
+        } else {
+            None
+        }
+    }
 }
 
 impl<T: Copy> fmt::Display for BinarySearchTree<T>
@@ -103,6 +124,7 @@ where
     T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\n")?;
         // use std::collections::VecDeque;
 
         // let mut queue = VecDeque::new();
@@ -158,19 +180,26 @@ fn main() {
     //         1   3     6      9
     //              ↘︎     ↘︎       ↘︎
     //              4     7       10
-    let arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    let mut bst = BinarySearchTree::new(arr);
+    let mut bst = BinarySearchTree::new();
+
+    let mut arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    arr.sort();
+    bst.bst(&arr, 0, arr.len() - 1);
+
     println!("{}", bst);
 
     if let Some(node) = bst.find_value(8) {
-        println!("\nbinary search: {}\n", node.borrow().element);
+        println!("\nbinary search: {}", node.borrow().element);
     }
 
     bst.insert(0);
     bst.insert(11);
 
     if let Some(node) = bst.minimum_node() {
-        println!("\nminimum node: {}\n", node.borrow().element);
+        println!("\nminimum node: {}", node.borrow().element);
+    }
+    if let Some(node) = bst.minimum_node_recursion() {
+        println!("\nminimum node recursion: {}", node.borrow().element);
     }
 
     println!("{}", bst);
