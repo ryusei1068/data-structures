@@ -69,6 +69,22 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
             };
         }
     }
+
+    fn search(&self, value: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
+        let mut iterator = self.root.clone();
+        while let Some(node) = iterator {
+            if node.borrow().element == value {
+                return Some(node);
+            }
+
+            iterator = if node.borrow().element > value {
+                node.borrow().left.clone()
+            } else {
+                node.borrow().right.clone()
+            };
+        }
+        None
+    }
 }
 
 impl<T: Copy> fmt::Display for BinarySearchTree<T>
@@ -124,9 +140,9 @@ fn main() {
     let mut bst = BinarySearchTree::new(arr);
     println!("{}", bst);
 
-    // if let Some(node) = bst.search(8) {
-    //     println!("\nbinary search: {}\n", node.element);
-    // }
+    if let Some(node) = bst.search(8) {
+        println!("\nbinary search: {}\n", node.borrow().element);
+    }
 
     bst.insert(0);
     bst.insert(11);
