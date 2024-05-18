@@ -70,7 +70,7 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
         }
     }
 
-    fn minimun_node(&self) -> Option<Rc<RefCell<TreeNode<T>>>> {
+    fn minimum_node(&self) -> Option<Rc<RefCell<TreeNode<T>>>> {
         let mut iterator = self.root.clone();
         while let Some(node) = iterator {
             if node.borrow().left.is_none() {
@@ -169,8 +169,8 @@ fn main() {
     bst.insert(0);
     bst.insert(11);
 
-    if let Some(node) = bst.minimun_node() {
-        println!("\nminimun node: {}\n", node.borrow().element);
+    if let Some(node) = bst.minimum_node() {
+        println!("\nminimum node: {}\n", node.borrow().element);
     }
 
     println!("{}", bst);
