@@ -92,38 +92,49 @@ where
     T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use std::collections::VecDeque;
+        // use std::collections::VecDeque;
 
-        let mut queue = VecDeque::new();
-        if let Some(root) = self.root.clone() {
-            queue.push_back(root);
-        }
+        // let mut queue = VecDeque::new();
+        // if let Some(root) = self.root.clone() {
+        //     queue.push_back(root);
+        // }
 
-        while let Some(cur_node) = queue.pop_front() {
-            write!(
-                f,
-                " {} @{:p} ",
-                cur_node.borrow().element,
-                &cur_node.borrow().element
-            )?;
+        // while let Some(cur_node) = queue.pop_front() {
+        //     write!(
+        //         f,
+        //         " {} @{:p} ",
+        //         cur_node.borrow().element,
+        //         &cur_node.borrow().element
+        //     )?;
 
-            if let Some(node_left) = cur_node.borrow().left.clone() {
-                queue.push_back(node_left)
-            }
-            if let Some(node_right) = cur_node.borrow().right.clone() {
-                queue.push_back(node_right)
-            }
-        }
+        //     if let Some(node_left) = cur_node.borrow().left.clone() {
+        //         queue.push_back(node_left)
+        //     }
+        //     if let Some(node_right) = cur_node.borrow().right.clone() {
+        //         queue.push_back(node_right)
+        //     }
+        // }
 
         // inorder
-        // match *self {
-        //     BinaryTree::NonEmpty(ref node) => {
-        //         node.left.fmt(f)?;
-        //         write!(f, "{} @{:p}-> ", node.element, &node.element)?;
-        //         node.right.fmt(f)?;
-        //     }
-        //     BinaryTree::Empty => {}
-        // }
+        if let Some(ref node) = self.root {
+            node.borrow().fmt(f)?;
+        }
+        Ok(())
+    }
+}
+
+impl<T: Copy> fmt::Display for TreeNode<T>
+where
+    T: fmt::Display,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref left) = self.left {
+            left.borrow().fmt(f)?;
+        }
+        write!(f, "{} @{:p} -> ", self.element, &self.element)?;
+        if let Some(ref right) = self.right {
+            right.borrow().fmt(f)?;
+        }
         Ok(())
     }
 }
