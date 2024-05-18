@@ -182,8 +182,7 @@ fn main() {
     //              4     7       10
     let mut bst = BinarySearchTree::new();
 
-    let mut arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    arr.sort();
+    let arr = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     bst.bst(&arr, 0, arr.len() - 1);
 
     println!("{}", bst);
