@@ -49,13 +49,13 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
     fn insert(&mut self, value: T) {
         let mut iterator = self.root.clone();
         while let Some(node) = iterator {
-            if node.borrow().left.clone().is_none() && node.borrow().element > value {
+            if node.borrow().left.is_none() && node.borrow().element > value {
                 node.borrow_mut().left = Some(Rc::new(RefCell::new(TreeNode {
                     element: value,
                     left: None,
                     right: None,
                 })))
-            } else if node.borrow().right.clone().is_none() && node.borrow().element < value {
+            } else if node.borrow().right.is_none() && node.borrow().element < value {
                 node.borrow_mut().right = Some(Rc::new(RefCell::new(TreeNode {
                     element: value,
                     left: None,
@@ -70,7 +70,18 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
         }
     }
 
-    fn search(&self, value: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
+    fn minimun_node(&self) -> Option<Rc<RefCell<TreeNode<T>>>> {
+        let mut iterator = self.root.clone();
+        while let Some(node) = iterator {
+            if node.borrow().left.is_none() {
+                return Some(node);
+            }
+            iterator = node.borrow().left.clone();
+        }
+        None
+    }
+
+    fn find_value(&self, value: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
         let mut iterator = self.root.clone();
         while let Some(node) = iterator {
             if node.borrow().element == value {
@@ -151,12 +162,16 @@ fn main() {
     let mut bst = BinarySearchTree::new(arr);
     println!("{}", bst);
 
-    if let Some(node) = bst.search(8) {
+    if let Some(node) = bst.find_value(8) {
         println!("\nbinary search: {}\n", node.borrow().element);
     }
 
     bst.insert(0);
     bst.insert(11);
+
+    if let Some(node) = bst.minimun_node() {
+        println!("\nminimun node: {}\n", node.borrow().element);
+    }
 
     println!("{}", bst);
 }
