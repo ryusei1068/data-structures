@@ -2,13 +2,13 @@ use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
 
-struct TreeNode<T> {
+struct TreeNode<T: Clone> {
     element: T,
     left: Option<Rc<RefCell<TreeNode<T>>>>,
     right: Option<Rc<RefCell<TreeNode<T>>>>,
 }
 
-struct BinarySearchTree<T> {
+struct BinarySearchTree<T: Clone> {
     root: Option<Rc<RefCell<TreeNode<T>>>>,
 }
 
@@ -103,7 +103,7 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
         };
 
         if let Some(ref right_node) = node.borrow().right {
-            return right_node.borrow_mut().minimum_node();
+            return right_node.borrow().minimum_node();
         }
 
         let mut succ = None;
@@ -122,16 +122,16 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
     }
 }
 
-impl<T> TreeNode<T> {
+impl<T: Clone> TreeNode<T> {
     fn minimum_node(&self) -> Option<Rc<RefCell<TreeNode<T>>>> {
         if let Some(ref left) = self.left {
-            if let Some(ref child_left) = left.borrow().left {
-                child_left.borrow().minimum_node()
-            } else {
-                Some(left.clone())
-            }
+            left.borrow().minimum_node()
         } else {
-            None
+            Some(Rc::new(RefCell::new(TreeNode {
+                element: self.element.clone(),
+                left: self.left.clone(),
+                right: self.right.clone(),
+            })))
         }
     }
 }
@@ -205,7 +205,7 @@ fn main() {
     println!("{}", bst);
 
     if let Some(node) = bst.inorder_successor(5) {
-        println!("\ninorder successor: {}", node.borrow().element);
+        println!("\ninorder successor: {}", node.borrow());
     }
     if let Some(node) = bst.find_value(8) {
         println!("\nbinary search: {}", node.borrow().element);
