@@ -96,12 +96,29 @@ impl<T: Copy + Ord> BinarySearchTree<T> {
         None
     }
 
-    fn minimum_node_recursion(&self) -> Option<Rc<RefCell<TreeNode<T>>>> {
-        if let Some(ref root) = self.root {
-            root.borrow().minimum_node()
-        } else {
-            None
+    fn inorder_successor(&self, value: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
+        let node = match self.find_value(value) {
+            Some(target_node) => target_node,
+            None => return None,
+        };
+
+        if let Some(ref right_node) = node.borrow().right {
+            return right_node.borrow_mut().minimum_node();
         }
+
+        let mut succ = None;
+        let mut iterator = self.root.clone();
+        while let Some(cur_node) = iterator.clone() {
+            if node.borrow().element < cur_node.borrow().element {
+                succ = Some(cur_node.clone());
+                iterator = cur_node.borrow().left.clone();
+            } else if node.borrow().element > cur_node.borrow().element {
+                iterator = cur_node.borrow().right.clone();
+            } else {
+                break;
+            }
+        }
+        succ
     }
 }
 
@@ -124,34 +141,34 @@ where
     T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "\n")?;
-        // use std::collections::VecDeque;
+        writeln!(f)?;
+        use std::collections::VecDeque;
 
-        // let mut queue = VecDeque::new();
-        // if let Some(root) = self.root.clone() {
-        //     queue.push_back(root);
-        // }
+        let mut queue = VecDeque::new();
+        if let Some(root) = self.root.clone() {
+            queue.push_back(root);
+        }
 
-        // while let Some(cur_node) = queue.pop_front() {
-        //     write!(
-        //         f,
-        //         " {} @{:p} ",
-        //         cur_node.borrow().element,
-        //         &cur_node.borrow().element
-        //     )?;
+        while let Some(cur_node) = queue.pop_front() {
+            write!(
+                f,
+                " {} @{:p} ",
+                cur_node.borrow().element,
+                &cur_node.borrow().element
+            )?;
 
-        //     if let Some(node_left) = cur_node.borrow().left.clone() {
-        //         queue.push_back(node_left)
-        //     }
-        //     if let Some(node_right) = cur_node.borrow().right.clone() {
-        //         queue.push_back(node_right)
-        //     }
-        // }
+            if let Some(node_left) = cur_node.borrow().left.clone() {
+                queue.push_back(node_left)
+            }
+            if let Some(node_right) = cur_node.borrow().right.clone() {
+                queue.push_back(node_right)
+            }
+        }
 
         // inorder
-        if let Some(ref node) = self.root {
-            node.borrow().fmt(f)?;
-        }
+        //        if let Some(ref node) = self.root {
+        //            node.borrow().fmt(f)?;
+        //        }
         Ok(())
     }
 }
@@ -187,19 +204,18 @@ fn main() {
 
     println!("{}", bst);
 
+    if let Some(node) = bst.inorder_successor(5) {
+        println!("\ninorder successor: {}", node.borrow().element);
+    }
     if let Some(node) = bst.find_value(8) {
         println!("\nbinary search: {}", node.borrow().element);
+    }
+    if let Some(node) = bst.minimum_node() {
+        println!("\nminimum node: {}", node.borrow().element);
     }
 
     bst.insert(0);
     bst.insert(11);
 
-    if let Some(node) = bst.minimum_node() {
-        println!("\nminimum node: {}", node.borrow().element);
-    }
-    if let Some(node) = bst.minimum_node_recursion() {
-        println!("\nminimum node recursion: {}", node.borrow().element);
-    }
-
-    println!("{}", bst);
+    println!("\n{}", bst);
 }
