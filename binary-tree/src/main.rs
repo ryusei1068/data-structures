@@ -143,11 +143,11 @@ impl<T: Clone + std::cmp::PartialOrd> TreeNode<T> {
 
     fn delete(&mut self, value: T) -> Option<Rc<RefCell<TreeNode<T>>>> {
         if self.element < value {
-            if let Some(ref right_node) = self.right.clone() {
+            if let Some(right_node) = self.right.clone() {
                 self.right = right_node.borrow_mut().delete(value);
             }
         } else if self.element > value {
-            if let Some(ref left_node) = self.left.clone() {
+            if let Some(left_node) = self.left.clone() {
                 self.left = left_node.borrow_mut().delete(value);
             }
         } else {
@@ -156,7 +156,7 @@ impl<T: Clone + std::cmp::PartialOrd> TreeNode<T> {
             } else if self.right.is_none() {
                 return self.left.clone();
             }
-            if let Some(ref right_node) = self.right.clone() {
+            if let Some(right_node) = self.right.clone() {
                 let temp = right_node.borrow().minimum_node();
                 if let Some(temp_data) = temp {
                     self.element = temp_data.borrow().element.clone();
