@@ -135,23 +135,13 @@ fn main() {
     list.push_front(5);
     println!("{}\n", list); // 5<--->4<--->1<--->2<--->3
 
-    match list.pop_front() {
-        Some(n) => {
-            println!(" data: {}", n.data);
-        }
-        None => {
-            println!(" None");
-        }
+    if let Some(node) = list.pop_front() {
+        println!(" data: {}", node.data);
     }
     println!("{}\n", list); // 4<--->1<--->2<--->3
 
-    match list.pop_back() {
-        Some(n) => {
-            println!(" data: {}", n.data);
-        }
-        None => {
-            println!(" None");
-        }
+    if let Some(node) = list.pop_back() {
+        println!(" data: {}", node.data);
     }
     println!("{}", list); // 4<--->1<--->2
 }
